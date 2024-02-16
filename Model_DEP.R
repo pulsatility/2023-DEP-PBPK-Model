@@ -2,10 +2,11 @@
 #Exposure Parameters
 exposure_duration = 6                     # h 
 CI_Air <- 0.25	                          # DEP concentration in inhaled air, ug/L 
+
 oral_dose = 0                             # ug
 
 
-#Physiolocal Parameters
+#Physiological Parameters
 BW =75                                    # kg
 
 Fgut = 0.0171
@@ -37,14 +38,14 @@ ave_creatinine_prod_rate = 20             # mg/kg BW/day
 creatinine_prod_rate = ave_creatinine_prod_rate *BW/(24*1000)
 
 
-# paramter values fed to ODE solver
+# parameter values fed to ODE solver
 parameters <- c(
   #Exposure Parameters
   CI = CI_Air,
   oral_dose = oral_dose, 
   
   
-  #Calculated Physiolocal Parameters
+  #Calculated Physiological Parameters
   Vgut= Fgut*BW,
   Vliver= Fliver*BW,
   Vplasma= Fplasma*BW,
@@ -126,6 +127,7 @@ DEPMEP <- function(t, state, parameters)
   with(as.list(c(state, parameters)),
        {
          Cplasma = Aplasma/Vplasma;
+        
          Cplasma_MEP = Aplasma_MEP/Vplasma;
          
          Cgut = Agut/Vgut;	  
@@ -135,6 +137,7 @@ DEPMEP <- function(t, state, parameters)
          dAgut = Qgut*Cplasma - Qgut*Cgut/P_gut_plasma_DEP - RAMG + kgut_abs*Agut_lumen
          
          Cliver = Aliver/Vliver;  
+         
          RAML=CLLint * (Cliver*fu_DEP/P_liver_plasma_DEP);
          
          dAliver = Qliver*Cplasma + Qgut*Cgut/P_gut_plasma_DEP - (Qliver+Qgut)*Cliver/P_liver_plasma_DEP - RAML;
