@@ -1,4 +1,3 @@
-# Krais 2018: 300 ug/m^3 exposred for 3 hours wearing clothes. Weschler 2015: 250 ug/m^3 exposed for 6 hours top body naked
 # Simulation results of the human DEP model for two different DEP exposure scenarios in Weschler study by using the “Best Parameter” values output by the MCMC FME package for PSkin_plasma_DEP, PRB_plasma_DEP,
 # kurine_MEP, and kskin_absorption.
 
@@ -74,7 +73,7 @@ dat$group <- "orgin"
 
 
 # Load Weschler 2015 datasets - Hood
-wes.data.hood.se<-read.table("Average - hood_se.txt",sep = "\t",col.names = c("time","UrineMEP","se_concentration","se_time"),
+wes.data.hood.se<-read.table("Weschler hood - mean and se.txt",sep = "\t",col.names = c("time","UrineMEP","se_concentration","se_time"),
                              fill = TRUE,strip.white = TRUE,na.strings = "#NA")
 wes.data.hood.se$ymin_conc <- log10(wes.data.hood.se$UrineMEP-wes.data.hood.se$se_concentration)
 wes.data.hood.se$ymax_conc <- log10(wes.data.hood.se$UrineMEP+wes.data.hood.se$se_concentration)
@@ -147,8 +146,9 @@ dat <- data.frame(time,concentration)
 dat$time <- round(dat$time,2)
 dat$group <- "orgin"
 
+
 ## Load Weschler 2015 datasets - No hood
-wes.data.nohood.se<-read.table("Average - no hood_se.txt",sep = "\t",col.names = c("time","UrineMEP","se_concentration","se_time"),
+wes.data.nohood.se<-read.table("Weschler no hood - mean and se.txt",sep = "\t",col.names = c("time","UrineMEP","se_concentration","se_time"),
                                fill = TRUE,strip.white = TRUE,na.strings = "#NA")
 wes.data.nohood.se$ymin_conc <- log10(wes.data.nohood.se$UrineMEP-wes.data.nohood.se$se_concentration)
 wes.data.nohood.se$ymax_conc <- log10(wes.data.nohood.se$UrineMEP+wes.data.nohood.se$se_concentration)
