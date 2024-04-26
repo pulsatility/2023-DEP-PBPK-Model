@@ -21,7 +21,7 @@ library(readxl)
 exposure_duration = 6                      # h
 oral_dose = 0                              # ug
 
-#Physiolocal Parameters
+#Physiological Parameters
 
 Fgut = 0.0171
 Fliver = 0.0257
@@ -33,7 +33,7 @@ Frestbody = 0.91- Fliver- Fplasma- Fgut- Fgonads- Ffat- Fskin
 
 QP=5*60			                              # ventilation rate (L/h)
 
-FQgut = 0.178                             # based on <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4844798/> (Table 2)
+FQgut = 0.178                             
 FQliver = 0.053                           # fractional hepatic liver blood flow
 FQgonads = 0.0005                    		  # Fractional gonads blood flow for male
 FQskin = 0.058                            # Fractional skin blood flow
@@ -42,7 +42,7 @@ FQrestbody = 1- FQliver -FQgut-FQfat-FQgonads-FQskin
 
 ave_creatinine_prod_rate = 20             # mg/kg BW/day
 
-FXskin =0.91                              # 0.91(no hood Weschler), 
+FXskin =0.91                              # 0.91(no hood Weschler 2015), 
 
 #Fraction of skin exposed
 CLGint =991  
@@ -92,9 +92,6 @@ BW.DEP <- function(BW,Skin_area){
 
 
 ############################################# Model Calibration with MCMC ###################################################
-## One data sets was used in model evaluation                                                                               #
-## A1: Measured pooled Plasma from 1977 - 2006 (Haugh et al., 2009)                                                         #
-#############################################################################################################################
 
 ## Fixed the physiological parameters;
 ## Input a new initial parameters
@@ -107,7 +104,7 @@ theta.MCMC.DEP <-log(c(
            kurine_MEP		=0.25,
            kskin_absorption=500,
            
-           sig2  = 0.5,                                           # Model error (residuals); mostly between 0.3 and 0.5 (corresponding to coefficients of variation of about 30-50%); Bois et al. (1998, 2000)
+           sig2  = 0.5, # Model error (residuals); mostly between 0.3 and 0.5 (corresponding to coefficients of variation of about 30-50%); Bois et al. (1998, 2000)
            
            sig_P_skin_plasma_DEP		=0.3,
            sig_P_restbody_plasma_DEP	=0.3,
@@ -390,7 +387,7 @@ mcmc.fun.DEP(theta.MCMC.DEP)
 
 
 ## Define the Prior distributions: either normal or lognormal distribution
-## nomral distribution
+## normal distribution
 
 Prior.DEP <- function(pars.DEP) {
   
@@ -402,7 +399,7 @@ Prior.DEP <- function(pars.DEP) {
   sig2 <- as.numeric(exp(pars.DEP[which_sig.DEP][1]))                  # error variances from model residual
   
   mean           = exp(theta.MCMC.DEP[-which_sig.DEP])
-  CV             = 0.5                                            # Coefficient of variation; Default value of 0.5 in all parameters (Bois,2000; Bois et al., 1996)
+  CV             = 0.5       # Coefficient of variation; Default value of 0.5 in all parameters (Bois,2000; Bois et al., 1996)
   sd             = mean*CV
 
   logμ=log(mean^2/sqrt(sd^2+mean^2))
@@ -416,10 +413,10 @@ Prior.DEP <- function(pars.DEP) {
   
   
   # The likelihood for population variance; P(sigmal^2|sigmal0^2)
-  CU             = 1                                              # Coefficient of uncertainty (CU) (Hack et al., 2006)
+  CU             = 1     # Coefficient of uncertainty (CU) (Hack et al., 2006)
   CV.sig         = exp(theta.MCMC.DEP[which_sig.DEP])[2:length(which_sig.DEP)] # Singmal0
-  alpha          = (2+1)/(CU^2)                                   # Shape parametrer of gamma distribution; Appendix Table A-7 from EPA (2011) :EPA/635/R-09/011F
-  beta           = (alpha-1)*CV.sig^2                             # Scale parameter  of gamma distribution; Appendix Table A-7 from EPA (2011) :EPA/635/R-09/011F
+  alpha          = (2+1)/(CU^2)      # Shape parametrer of gamma distribution; Appendix Table A-7 from EPA (2011) :EPA/635/R-09/011F
+  beta           = (alpha-1)*CV.sig^2      # Scale parameter  of gamma distribution; Appendix Table A-7 from EPA (2011) :EPA/635/R-09/011F
   
   # Calculate likelihoods of model error (sig2) and population variance (sig) parameters
   prior_sig      = dinvgamma (sig, shape = alpha , scale = beta)  # Prior distribution for population variances; sigma2
@@ -443,8 +440,8 @@ Prior.DEP <- function(pars.DEP) {
   log.pri.pars.i = log (prior_pars_i)
   log.pri.sig2   = log (prior_sig2)
   
-  # Maximau likelihood estimation (MLE): negative log-likelihood function, (-2 times sum of log-likelihoods)
-  MLE =  -2*sum(log.pri.pars, log.pri.sig , log.pri.pars.i,log.pri.sig2)  
+  # Maximum likelihood estimation (MLE): negative log-likelihood function, (-2 times sum of log-likelihoods)
+  MLE =  -2*sum(log.pri.pars, log.pri.sig , log.pri.pars.i, log.pri.sig2)  
   
   return(MLE)
 }
@@ -454,7 +451,7 @@ Prior.DEP(theta.MCMC.DEP)
 ###### random select initial values for MCMC chains from prior distribution
 
 mean           = exp(theta.MCMC.DEP[-which_sig.DEP])
-CV             = 0.5                                            # Coefficient of variation; Default value of 0.5 in all parameters (Bois,2000; Bois et al., 1996)
+CV             = 0.5  # Coefficient of variation; Default value of 0.5 in all parameters (Bois,2000; Bois et al., 1996)
 sd             = mean*CV
 
 
@@ -474,7 +471,7 @@ prior_pars_dataframe_log <- log(prior_pars_dataframe)
 prior_pars_dataframe_log
 
 
-###################### MCMC simulation
+###################### MCMC simulation ###########################
 cl <- makeCluster(2)
 registerDoParallel(cl)
 on.exit(stopCluster(cl))
@@ -485,15 +482,15 @@ system.time(
 MCMC.DEP <- apply(prior_pars_dataframe_log, MARGIN = 1, FUN = function(prior_pars_dataframe_log) {
   
   modMCMC(     f             = mcmc.fun.DEP, 
-               p             = prior_pars_dataframe_log,  ## Qiang:this the place where different chains may start from different initila pramaeter values
+               p             = prior_pars_dataframe_log,  ## This the place where different chains may start from different initial parameter values
                niter         = 1200,                      ## iteration number  #default 500000
                jump          = 0.01,                      ## jump function generation new parameters distribution using covariate matrix
                prior         = Prior.DEP,                 ## prior function
-               updatecov     = 50,                        ## Adaptative Metropolis
+               updatecov     = 50,                        ## Adaptive Metropolis
                var0          = NULL,                      ## initial model variance;
-               #wvar0         = 0.01,                     ## "Weight" for the initial model variance
+              #wvar0         = 0.01,                     ## "Weight" for the initial model variance
                ntrydr        = 2,                         ## Delayed Rejection
-               burninlength  = 0,                         #250000 ## number of initial iterations to be removed from output.
+               burninlength  = 0,                         ## number of initial iterations to be removed from output.
                outputlength  = 1100)                      ## delayed rejection (RD)
 })
 )
@@ -504,7 +501,7 @@ print(Sys.time()-strt)
 stopCluster(cl) 
 
 
-## Performance four chains to check the convergences
+## Performance three chains to check the convergences
 
 MC.H.1.DEP = as.mcmc (MCMC.DEP[[1]]$pars)     # first  chain
 MC.H.2.DEP = as.mcmc (MCMC.DEP[[2]]$pars)     # second chain
